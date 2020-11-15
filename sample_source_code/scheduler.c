@@ -10,10 +10,10 @@
 #include "open.h"
 #include "read.h"
 
-int RRB(task_t *task_list, int *size);
-int FCFS(task_t *task_list, int *size);
-int SRTF(task_t *task_list, int *size);
-int selection_sort(task_t *task_list[], int *size);
+int RRB(task_t task_list[], int size, int quantum);
+int FCFS(task_t task_list[], int size);
+int SRTF(task_t task_list[], int size);
+int selection_sort(task_t task_list[], int size);
 
 int main( int argc, char *argv[] )  {
     char *file_name; /* file name from the commandline */
@@ -41,12 +41,13 @@ int main( int argc, char *argv[] )  {
     return EXIT_SUCCESS;
 }
 
-int RRB(task_t *task_list[], int *size, int quantum)
+int RRB(task_t task_list[], int size, int quantum)
 {
-    int bt_remain[] = malloc(*size * sizeof(int));
+    int* bt_remain;
+    bt_remain = malloc(size * sizeof(int));
     for(int i = 0; i < size; i++)
     {
-        bt_remain[i] = task_list[i]->burst_time;
+        bt_remain[i] = task_list[i].burst_time;
     }
 
     int time = 0;
@@ -63,7 +64,7 @@ int RRB(task_t *task_list[], int *size, int quantum)
 
                 if (bt_remain[i] > quantum)
                 {
-                    
+                    return 1;
                 }
             }
         }
@@ -74,21 +75,21 @@ int RRB(task_t *task_list[], int *size, int quantum)
     return 0;
 }
 
-int FCFS(task_t *task_list[], int *size)
+int FCFS(task_t task_list[], int size)
 {
     u_int time = 0;
 
     for(int i = 0; i < size; i++)
     {
-        for(int j = 0; j < task_list[i]->burst_time; j ++)
+        for(int j = 0; j < task_list[i].burst_time; j ++)
         {
-            if(j != task_list[i]->burst_time - 1)
+            if(j != task_list[i].burst_time - 1)
             {
-                printf("<time %d> process %d is running", time, task_list[i]->pid);
+                printf("<time %d> process %d is running", time, task_list[i].pid);
             }
             else
             {
-                printf("<time %d> process %d is finished", time, task_list[i]->pid);
+                printf("<time %d> process %d is finished", time, task_list[i].pid);
             }
             time++;
 
@@ -98,22 +99,22 @@ int FCFS(task_t *task_list[], int *size)
     return 1;
 }
 
-int SRTF(task_t *task_list[], int *size)
+int SRTF(task_t task_list[], int size)
 {
     return 0;
 }
 
-int selection_sort(task_t *task_list[], int *size)
+int selection_sort(task_t task_list[], int size)
 {
     for (int i = 0; i < size-1; i++)
     {
         int min = i;
         for(int j = i+1; j < size - 1; j++)
         {
-            if(task_list[j]->arrival_time < task_list[min]->arrival_time)
+            if(task_list[j].arrival_time < task_list[min].arrival_time)
             { 
                 min = j;
-                task_t *temp = task_list[i];
+                task_t temp = task_list[i];
                 task_list[i] = task_list[j];
                 task_list[j] = temp;
             }
