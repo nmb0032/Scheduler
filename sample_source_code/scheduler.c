@@ -27,7 +27,8 @@ int main( int argc, char *argv[] )  {
     u_int clock = 0; /*clock*/
     u_int quantum;
     u_int task_count;
-    u_int ready_count = 0;
+    int ready_count = 0;
+    int finishtask_count = 0;
 
     if (argc != 2) {
         printf("Usage: input <file_name>\n");
@@ -49,22 +50,42 @@ int main( int argc, char *argv[] )  {
     read_file(fp, task_array, &task_count);
     print_task_list(task_array, task_count);
     selection_sort(task_array, task_count);
-    while(task_count != 0 || ready_queue != 0)
+    while(task_count != 0 || ready_count != 0)
     {
         for(int i = task_count - 1; i >= 0; i--)
         {
             if (task_array[i].arrival_time <= clock)
             {
                 task_count--;
-                task.remaining_time = task.burst_time;
+                task_array[i].remaining_time = task_array[i].burst_time;
                 ready_queue[ready_count] = task_array[i];
                 ready_count++;
             }
             else break;
         }
-        task_t next = ready_queue[ready_count];
-        if (next.)
+        
+        if (ready_queue[ready_count].remaining_time == ready_queue[ready_count].burst_time)
+        {
+            ready_queue[ready_count].arrival_time = clock;
+        }
+        // run task
+        ready_queue[ready_count].remaining_time --;
+        if(ready_queue[ready_count].remaining_time == 0)
+        {
+            ready_queue[ready_count].finish_time = clock;
+
+            finish_task_list[finishtask_count] = ready_queue[ready_count];
+            ready_count--;
+            finishtask_count++;
+        }
+        clock ++;
     }
+
+    //to do compute stat info function
+
+    //to do display stat info function
+
+
 
     fclose(fp);
     return EXIT_SUCCESS;
