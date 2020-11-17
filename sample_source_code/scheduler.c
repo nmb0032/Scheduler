@@ -78,7 +78,7 @@ int main( int argc, char *argv[] )  {
         }
         else if (algo_type == "RR")
         {
-            index = RRB(ready_queue, ready_count, quantum);
+            index = RRB(ready_queue, ready_count, quantum, clock);
         }
         else
         {
@@ -112,10 +112,22 @@ int main( int argc, char *argv[] )  {
     return EXIT_SUCCESS;
 }
 
-u_int RRB(task_t task_list[], int size, int quantum)
+u_int RRB(task_t task_list[], int size, int quantum, int clock)
 {
-    task_list[0].burst_time / quantum 
-
+    if(clock == 0)
+    {
+        for(int i = 0; i < size; i++)
+        {
+            task_list[i].quantum_time = quantum;
+        }
+    }
+    if(task_list[0].quantum_time == 0)
+    {
+        task_list[0].quantum_time = quantum;
+        swap(task_list, 0, size - 1);
+    }
+    task_list[0].remaining_time--;
+    return 0;
 }
 
 u_int FCFS(task_t task_list[], int size)
@@ -167,4 +179,11 @@ void shift(task_t *task_list, int var,int size)
     {        
     task_list[j] = task_list[j-1];
     }
+}
+
+void swap(task_t *task_list, int first, int second)
+{
+    task_t temp = task_list[first];
+    task_list[first] = task_list[second];
+    task_list[second] = temp;
 }
