@@ -52,32 +52,35 @@ int main( int argc, char *argv[] )  {
     selection_sort(task_array, task_count);
     while(task_count != 0 || ready_count != 0)
     {
-        for(int i = task_count - 1; i >= 0; i--)
+        for(int i = 0; i >= task_count; i++)
         {
             if (task_array[i].arrival_time <= clock)
             {
-                task_count--;
                 task_array[i].remaining_time = task_array[i].burst_time;
-                ready_queue[ready_count] = task_array[i];
+                task_t temp = task_array[i];
+                shift(task_array, i, task_count);
+                task_count--;
+                ready_queue[ready_count] = temp;
                 ready_count++;
             }
             else break;
         }
-        
-        if (ready_queue[ready_count].remaining_time == ready_queue[ready_count].burst_time)
-        {
-            ready_queue[ready_count].arrival_time = clock;
-        }
-        // run task
-        ready_queue[ready_count].remaining_time --;
-        if(ready_queue[ready_count].remaining_time == 0)
-        {
-            ready_queue[ready_count].finish_time = clock;
 
-            finish_task_list[finishtask_count] = ready_queue[ready_count];
-            ready_count--;
-            finishtask_count++;
-        }
+        // task_t temp = ready_queue[0]
+        // if (temp.remaining_time == temp.burst_time)
+        // {
+        //     temp.arrival_time = clock;
+        // }
+        // // run task
+        // if(temp.remaining_time == 0)
+        // {
+        //     ready_queue[ready_count].finish_time = clock;
+
+        //     finish_task_list[finishtask_count] = ready_queue[ready_count];
+        //     ready_count--;
+        //     finishtask_count++;
+        // }
+        
         clock ++;
     }
 
@@ -170,5 +173,13 @@ int selection_sort(task_t task_list[], int size)
             }
         }
     }
-    return 1;
+    return task_list;
+}
+
+void shift(task_t *task_list, int var,int size)
+{
+    for (int j = size; j > var; j--)
+    {        
+    task_list[j] = task_list[j-1];
+    }
 }
