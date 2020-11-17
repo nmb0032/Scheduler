@@ -52,6 +52,7 @@ int main( int argc, char *argv[] )  {
     selection_sort(task_array, task_count);
     while(task_count != 0 || ready_count != 0)
     {
+        task_t ran;
         for(int i = 0; i >= task_count; i++)
         {
             if (task_array[i].arrival_time <= clock)
@@ -65,21 +66,38 @@ int main( int argc, char *argv[] )  {
             }
             else break;
         }
+        task_t temp = ready_queue[0];
+        if (temp.remaining_time == temp.burst_time)
+        {
+             temp.arrival_time = clock;
+        }
+        u_int index;
+        if(algo_type == "FCFS")
+        {
+            index = FCFS(ready_queue, ready_count);
+        }
+        else if (algo_type == "RR")
+        {
+            index = RRB(ready_queue, ready_count, quantum);
+        }
+        else
+        {
+            index = SRTF(ready_queue, ready_count);
+        }
 
-        // task_t temp = ready_queue[0]
-        // if (temp.remaining_time == temp.burst_time)
-        // {
-        //     temp.arrival_time = clock;
-        // }
-        // // run task
-        // if(temp.remaining_time == 0)
-        // {
-        //     ready_queue[ready_count].finish_time = clock;
-
-        //     finish_task_list[finishtask_count] = ready_queue[ready_count];
-        //     ready_count--;
-        //     finishtask_count++;
-        // }
+        if(ready_queue[index].remaining_time == 0)
+        {
+            printf("<time %d> process %d is finished...",clock,ready_queue[index].pid;
+            ready_queue[index].finish_time = clock;
+            finish_task_list[finishtask_count] = ready_queue[index];
+            shift(ready_queue, index, ready_count);
+            ready_count--;
+            finishtask_count++;
+        }
+        else
+        {
+            printf("<time %d> process %d is running",clock,ready_queue[index].pid);
+        }
         
         clock ++;
     }
@@ -94,67 +112,34 @@ int main( int argc, char *argv[] )  {
     return EXIT_SUCCESS;
 }
 
-int RRB(task_t task_list[], int size, int quantum)
+u_int RRB(task_t task_list[], int size, int quantum)
 {
-    int* bt_remain;
-    bt_remain = malloc(size * sizeof(int));
-    for(int i = 0; i < size; i++)
-    {
-        bt_remain[i] = task_list[i].burst_time;
-    }
+    task_list[0].burst_time / quantum 
 
-    int time = 0;
+}
 
-    while(1)
-    {
-        int done = 1;
-
-        for (int i = 0; i < size; i++)
-        {
-            if(bt_remain[i] > 0)
-            {
-                done = 0;
-
-                if (bt_remain[i] > quantum)
-                {
-                    return 1;
-                }
-            }
-        }
-    }
-
-
-    
+u_int FCFS(task_t task_list[], int size)
+{
+    task_list[0].remaining_time--;
     return 0;
 }
 
-int FCFS(task_t task_list[], int size)
+u_int SRTF(task_t task_list[], int size)
 {
-    u_int time = 0;
-
+    u_int shortest_index;
     for(int i = 0; i < size; i++)
     {
-        for(int j = 0; j < task_list[i].burst_time; j ++)
+        if(i == 0)
         {
-            if(j != task_list[i].burst_time - 1)
-            {
-                printf("<time %d> process %d is running", time, task_list[i].pid);
-            }
-            else
-            {
-                printf("<time %d> process %d is finished", time, task_list[i].pid);
-            }
-            time++;
-
+            shortest_index = i;
         }
-
+        else if(task_list[i].burst_time < task_list[shortest_index].burst_time)
+        {
+            shortest_index = i;
+        }
     }
-    return 1;
-}
-
-int SRTF(task_t task_list[], int size)
-{
-    return 0;
+    task_list[shortest_index].remaining_time--;
+    return shortest_index;
 }
 
 int selection_sort(task_t task_list[], int size)
