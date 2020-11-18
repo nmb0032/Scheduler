@@ -12,7 +12,7 @@ print_task_list(task_t task_list[], int size)
     /* print task_array to check input file */
     for (i = 0; i < size; i++)
         printf("Task PID: %u, Arrival Time: %u, Burst Time: %u\n", task_list[i].pid, \
-           task_list[i].arrival_time, task_list[i].burst_time);
+               task_list[i].arrival_time, task_list[i].burst_time);
 
     printf("Press any key to continue ...\n");
     getchar();
