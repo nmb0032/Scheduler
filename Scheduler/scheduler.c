@@ -69,9 +69,9 @@ int main( int argc, char *argv[] )  {
     selection_sort(task_array, task_count);
     print_task_list(task_array,task_count);
     printf("Usage: scheduler task_list_file [FCFS|RR|SRTF] [time_quantum]\n\n\
-                Scheduling Policy: %s\n There are %d tasks loaded from \"%s\".\
+Scheduling Policy: %s\n There are %d tasks loaded from \"%s\".\
                 Press any key to continue ...\n\
-                ==================================================================\n"\
+==================================================================\n"\
                 , algo_type, task_count, file_name);
 
     while(task_count != 0 || ready_count != 0)
@@ -82,6 +82,7 @@ int main( int argc, char *argv[] )  {
             //print_task_list(task_array, task_count);
             if (task_array[i].arrival_time <= clock)
             {
+                task_array[i].waiting_time = 0;
                 task_array[i].remaining_time = task_array[i].burst_time;
                 task_t temp = task_array[i];
                 ready_queue[ready_count] = temp;
@@ -92,10 +93,13 @@ int main( int argc, char *argv[] )  {
             else break;
 
         }
-        task_t temp = ready_queue[0];
-        if (ready_queue[0].remaining_time == ready_queue[0].burst_time)
+        for(int i = 0; i < ready_count; i++)
         {
-             ready_queue[0].arrival_time = clock;
+            if (ready_queue[i].remaining_time == ready_queue[i].burst_time)
+            {
+                    ready_queue[i].arrival_time = clock;
+                    ready_queue[i].waiting_time++;
+            }
         }
         //print_task_list(ready_queue,ready_count);
         if (ready_count > 0)
@@ -113,8 +117,12 @@ int main( int argc, char *argv[] )  {
             {
                 index = SRTF(ready_queue, ready_count);
             }
-            ready_queue[index].start_time = clock;        
-
+            else
+            {
+                printf("Incorrect algotype: %s\n",algo_type);
+                return EXIT_FAILURE;
+            }
+            
             if(ready_queue[index].remaining_time == 0)
             {
                 printf("<time %d> process %d is finished...\n",clock,ready_queue[index].pid);
@@ -133,7 +141,7 @@ int main( int argc, char *argv[] )  {
 
         clock ++;
     }
-    printf("<time %d> All processes finish ......\n");
+    printf("<time %d> All processes finish ......\n",clock);
 
     //to do compute stat info function
     compute_stats(finish_task_list, finishtask_count, process_clock, clock);
@@ -176,9 +184,7 @@ u_int SRTF(task_t task_list[], int size)
             shortest_index = i;
         }
     }
-    //printf("Remaining time before %d\n", task_list[shortest_index].remaining_time);
     task_list[shortest_index].remaining_time--;
-    //printf("Remaining time after %d\n", task_list[shortest_index].remaining_time);
     return shortest_index;
 }
 
@@ -224,19 +230,19 @@ void compute_stats(task_t task_list[], int size, int process, int tick)
     double avg_waiting_time = 0;
     for(int i = 0; i < size; i++)
     {
-        avg_turn_around += task_list[i].finish_time - task_list[i].arrival_time;
-        avg_response_time += task_list[i].start_time - task_list[i].arrival_time;
-        avg_waiting_time += task_list[i].finish_time - task_list[i].arrival_time - task_list[i].burst_time;
+        avg_turn_around += (double)task_list[i].waiting_time + task_list[i].finish_time - task_list[i].arrival_time;
+        avg_waiting_time += (double)task_list[i].waiting_time;
+        avg_response_time += (double)task_list[i].finish_time - task_list[i].arrival_time;
     }
     avg_turn_around = avg_turn_around/size;
     avg_response_time = avg_response_time/size;
     avg_waiting_time = avg_waiting_time/size;
     double cpu_usage = (double)(process/tick) * 100;
     printf("============================================================\n\
-            Average Waiting time: %.2f\n\
-            Average Response time: %.2f\n\
-            Average turnaround time: %.2f\n\
-            Overall CPU usage: %f.2f%\n\
-            ============================================================\n",\
+    Average Waiting time: %.2f\n\
+    Average Response time: %.2f\n\
+    Average turnaround time: %.2f\n\
+    Overall CPU usage: %.2f \%\n\
+============================================================\n",\
             avg_waiting_time, avg_response_time, avg_turn_around, cpu_usage);
 }
